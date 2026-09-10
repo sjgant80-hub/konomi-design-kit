@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konomi Design Kit — reskin a build, never break it</title>
+<meta name="description" content="A safe on-ramp for a great designer to improve estate builds: total freedom on the skin, the gated kernel stays locked, and a live gate proves your redesign still works.">
+<style>
+  :root{
+    --bg:#0c0e14; --panel:#151924; --panel2:#1b2130; --line:#293142;
+    --ink:#e9edf5; --dim:#8b93a6; --accent:#8affc8; --bad:#ff6b6b; --warn:#ffcc4d; --good:#4fd28f;
+    --chip:#1c2432; --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+    /* ── THE SKIN a designer owns: the embedded build reads only these ── */
+    --w-bg:#1b2130; --w-panel:#232c3f; --w-ink:#eef2fa; --w-accent:#8affc8; --w-radius:14px; --w-font:600 1rem system-ui;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,Segoe UI,Roboto,sans-serif;padding:0 0 4rem}
+  .wrap{max-width:940px;margin:0 auto;padding:0 1.25rem}
+  header{padding:2.6rem 0 1.2rem}
+  h1{font-size:1.9rem} h1 .hl{color:var(--accent)}
+  .sub{color:var(--dim);margin-top:.5rem;max-width:46rem}
+  h2{font-size:1.1rem;margin:1.8rem 0 .7rem}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem}
+  /* the embedded BUILD — every rule below uses only the --w-* skin tokens the designer edits */
+  .build{background:var(--w-bg);border-radius:var(--w-radius);padding:1.4rem;text-align:center}
+  .build .title{font:var(--w-font);color:var(--w-ink);letter-spacing:.03em;margin-bottom:.6rem}
+  .build .count{font:800 3rem var(--mono);color:var(--w-accent);margin:.4rem 0}
+  .build .row{display:flex;gap:.6rem;justify-content:center}
+  .build button{background:var(--w-panel);color:var(--w-ink);border:1px solid var(--w-accent);border-radius:var(--w-radius);padding:.6rem 1.1rem;font:var(--w-font);cursor:pointer}
+  .build button:hover{background:var(--w-accent);color:var(--w-bg)}
+  .theme label{display:block;font-size:.8rem;color:var(--dim);margin:.5rem 0 .15rem}
+  .theme .r{display:flex;gap:.6rem;align-items:center}
+  .theme input[type=color]{width:44px;height:30px;background:none;border:1px solid var(--line);border-radius:6px;padding:0}
+  .theme input[type=text],.theme input[type=range]{flex:1;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem;font:.85rem var(--mono)}
+  .gate{margin-top:.4rem}
+  .law{display:flex;align-items:center;gap:.5rem;font:.86rem var(--mono);padding:.35rem 0;border-bottom:1px solid var(--line)}
+  .law .dot{width:.7rem;height:.7rem;border-radius:50%}
+  .law.ok .dot{background:var(--good)} .law.no .dot{background:var(--bad)}
+  .law.no{color:var(--bad)}
+  .verdict{font:800 1.3rem var(--mono);margin:.6rem 0}
+  .v-SHIP{color:var(--good)} .v-REJECT{color:var(--bad)}
+  .breaks{color:var(--bad);font-size:.85rem;margin-top:.3rem}
+  .breaks li{margin:.25rem 0 .25rem 1.1rem}
+  .toggle{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--dim);margin-top:.6rem}
+  .locked{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;font:.78rem var(--mono);color:var(--dim);white-space:pre-wrap;max-height:120px;overflow:auto}
+  .thesis{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:1rem 1.2rem;margin:1.4rem 0;color:var(--dim)}
+  .thesis strong{color:var(--ink)} code{font:.88em var(--mono);background:var(--chip);padding:.08em .35em;border-radius:4px}
+  footer{margin-top:2.4rem;padding-top:1.2rem;border-top:1px solid var(--line);color:var(--dim);font-size:.85rem}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Konomi Design Kit <span class="hl">·</span> reskin a build, never break it</h1>
+  <p class="sub">The estate is weakest at visual craft — so a brilliant designer improving a build is high value. This is the safe on-ramp: you own the <strong>skin</strong> (edit the tokens below, restyle the live build any way you like), the <strong>kernel stays locked</strong>, and the gate proves in real time that your redesign still works. Design freedom above the gate; the proven thing below it.</p>
+</header>
+
+<div class="grid">
+  <div>
+    <h2>The build (reskin it live)</h2>
+    <div class="card">
+      <div class="build">
+        <div class="title" id="dg-title">Approvals today</div>
+        <div class="count" id="dg-count">0</div>
+        <div class="row">
+          <button id="dg-dec">− decline</button>
+          <button id="dg-inc">+ approve</button>
+        </div>
+      </div>
+    </div>
+    <h2>The locked kernel (you can't touch this)</h2>
+    <div class="locked" id="locked"></div>
+    <div class="toggle"><input type="checkbox" id="break"> simulate breaking it — remove the − control (watch the gate catch it)</div>
+  </div>
+
+  <div>
+    <h2>Your skin</h2>
+    <div class="card theme">
+      <label>background</label><div class="r"><input type="color" id="c-bg" value="#1b2130"><input type="text" id="t-bg" value="#1b2130"></div>
+      <label>button panel</label><div class="r"><input type="color" id="c-panel" value="#232c3f"><input type="text" id="t-panel" value="#232c3f"></div>
+      <label>text</label><div class="r"><input type="color" id="c-ink" value="#eef2fa"><input type="text" id="t-ink" value="#eef2fa"></div>
+      <label>accent</label><div class="r"><input type="color" id="c-accent" value="#8affc8"><input type="text" id="t-accent" value="#8affc8"></div>
+      <label>corner radius <span id="rad-v" style="color:var(--accent)">14px</span></label><input type="range" id="rad" min="0" max="32" value="14">
+    </div>
+    <h2>The gate (live)</h2>
+    <div class="card gate">
+      <div class="verdict" id="verdict"></div>
+      <div id="laws"></div>
+      <ul class="breaks" id="breaks"></ul>
+    </div>
+  </div>
+</div>
+
+<div class="thesis">
+  <strong>What this is.</strong> The build reads only your skin tokens (<code>--w-bg</code>, <code>--w-ink</code>, <code>--w-accent</code>, <code>--w-radius</code>…) — recolour, restyle, reshape it freely. The gate runs the mutation-tested <code>designGate</code> kernel (26/26) against the build's contract every time you change something: is the kernel intact, is every wired control still present, is every required variable defined? Flip the "break it" toggle to watch it reject a redesign that drops a control. <strong>All in konomi:</strong> the design contribution is witnessed exactly like code — you can iterate endlessly and never ship a broken build.
+</div>
+
+<footer>
+  <p>MIT · <a href="https://github.com/sjgant80-hub/konomi-design-kit">source &amp; mutation gate</a> — the gate is the gated <code>kernel.mjs</code> verbatim (injected, CI-diffed). A designer forks a build, edits only the skin, and the gate clears their PR. Pure client-side.</p>
+</footer>
+</div>
+
+<script type="module">
+// ⟦KERNEL-BEGIN⟧ generated from kernel.mjs by make-page.mjs — do not edit here
+// konomi-design-kit — the design gate. Freedom on the surface, the kernel stays sacred.
+//
+// The estate is weakest at UX/UI, so a brilliant designer improving a build is high value —
+// but an estate build is a WITNESSED kernel behind a live surface, and a redesign must not
+// break the logic or the wiring. This gate draws the line: a designer owns the SKIN (colours,
+// type, layout, spacing, copy, motion — the CSS variables and the look); the KERNEL and the
+// control WIRING are locked. The gate checks a proposed redesign against the build's contract
+// and says exactly one of: SHIP (safe), or REJECT with precisely what broke. Design freedom
+// lives ABOVE this gate; the proven thing lives below it, untouched.
+//
+// "All in konomi" = the design contribution is witnessed the same way code is. A gorgeous
+// redesign that drops a wired control or leaves a CSS variable undefined is not shippable, and
+// the gate names it — so the designer iterates freely and can never ship a broken build.
+//
+// Pure and total; guards one-per-line.
+
+function isStrArr(a) {
+  if (!Array.isArray(a)) return false;
+  return a.every((x) => typeof x === 'string');
+}
+function readContract(c) {
+  if (typeof c !== 'object' || c === null || Array.isArray(c)) return 'contract is { controls[], vars[], kernelHash }';
+  if (!isStrArr(c.controls)) return 'contract.controls must be an array of element-id strings the wiring needs';
+  if (!isStrArr(c.vars)) return 'contract.vars must be an array of required CSS variable names';
+  if (typeof c.kernelHash !== 'string') return 'contract.kernelHash must be a string (the locked kernel fingerprint)';
+  if (c.kernelHash.length === 0) return 'contract.kernelHash must be non-empty';
+  return null;
+}
+function readSkin(s) {
+  if (typeof s !== 'object' || s === null || Array.isArray(s)) return 'skin is { controls[], vars[], varsUsed[], kernelHash }';
+  if (!isStrArr(s.controls)) return 'skin.controls must be an array of element ids present in the redesign';
+  if (!isStrArr(s.vars)) return 'skin.vars must be an array of CSS variables the redesign defines';
+  if (!isStrArr(s.varsUsed)) return 'skin.varsUsed must be an array of CSS variables the redesign references';
+  if (typeof s.kernelHash !== 'string') return 'skin.kernelHash must be a string (the kernel fingerprint in the redesign)';
+  if (s.kernelHash.length === 0) return 'skin.kernelHash must be non-empty';
+  return null;
+}
+
+/**
+ * designGate(contract, skin) — can this redesign ship?
+ * Four checks, each a way a beautiful redesign can silently break a working build:
+ *   1. KERNEL INTACT   — the locked logic is byte-identical (fingerprints match). The designer
+ *                        touched the skin, not the code.
+ *   2. CONTROLS WIRED  — every element id the wiring binds to still exists. A renamed/removed
+ *                        control leaves a dead button.
+ *   3. REQUIRED VARS   — every CSS variable the build depends on is still defined.
+ *   4. NO UNDEFINED VARS — every var(--x) the redesign USES is defined (an undefined var paints nothing).
+ * SHIP iff all four hold; otherwise REJECT, naming each break.
+ */
+function designGate(contract, skin) {
+  const ce = readContract(contract);
+  if (ce !== null) return { ok: false, why: ce };
+  const se = readSkin(skin);
+  if (se !== null) return { ok: false, why: se };
+
+  const kernelIntact = skin.kernelHash === contract.kernelHash;
+  const droppedControls = contract.controls.filter((c) => !skin.controls.includes(c));
+  const missingVars = contract.vars.filter((v) => !skin.vars.includes(v));
+  const undefinedVars = skin.varsUsed.filter((v) => !skin.vars.includes(v));
+
+  const breaks = [];
+  if (!kernelIntact) breaks.push({ law: 'KERNEL', why: 'the locked kernel changed — the redesign touched the logic, not just the skin' });
+  if (droppedControls.length > 0) breaks.push({ law: 'CONTROLS', why: 'wired control(s) missing from the redesign: ' + droppedControls.join(', ') });
+  if (missingVars.length > 0) breaks.push({ law: 'REQUIRED-VARS', why: 'required CSS variable(s) not defined: ' + missingVars.join(', ') });
+  if (undefinedVars.length > 0) breaks.push({ law: 'UNDEFINED-VARS', why: 'CSS variable(s) used but never defined: ' + undefinedVars.join(', ') });
+
+  const ship = breaks.length === 0;
+  return {
+    ok: true,
+    ship,
+    verdict: ship ? 'SHIP' : 'REJECT',
+    breaks,
+    report: { kernelIntact, controlsWired: droppedControls.length === 0, requiredVars: missingVars.length === 0, noUndefinedVars: undefinedVars.length === 0 },
+  };
+}
+
+// A tiny, stable content fingerprint (FNV-1a, 32-bit hex) — enough to detect that a locked
+// kernel block was edited. Deterministic; whitespace-significant on purpose (any edit shows).
+function fingerprint(text) {
+  if (typeof text !== 'string') return { ok: false, why: 'fingerprint reads a string' };
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return { ok: true, hash: (h >>> 0).toString(16).padStart(8, '0') };
+}
+// ⟦KERNEL-END⟧
+
+const $ = (id) => document.getElementById(id);
+
+// THE LOCKED KERNEL of the embedded build — the counter's logic. The designer never edits this;
+// its fingerprint is the contract's kernelHash. Shown read-only so they can see what's protected.
+const BUILD_KERNEL = "let n = 0;\nfunction approve(){ n += 1; return n; }\nfunction decline(){ n = Math.max(0, n - 1); return n; }";
+$('locked').textContent = BUILD_KERNEL;
+
+// THE CONTRACT: what a shippable redesign must preserve.
+const CONTRACT = {
+  controls: ['dg-inc', 'dg-dec', 'dg-count'],
+  vars: ['--w-bg', '--w-panel', '--w-ink', '--w-accent', '--w-radius'],
+  kernelHash: fingerprint(BUILD_KERNEL).hash,
+};
+
+// the embedded build's wiring (the locked logic, live)
+let n = 0;
+const paint = () => { const c = $('dg-count'); if (c) c.textContent = n; };
+$('dg-inc').addEventListener('click', () => { n += 1; paint(); runGate(); });
+$('dg-dec').addEventListener('click', () => { n = Math.max(0, n - 1); paint(); runGate(); });
+
+// theme editing → live restyle
+const root = document.documentElement;
+function setVar(name, val) { root.style.setProperty(name, val); runGate(); }
+for (const [c, t, v] of [['c-bg', 't-bg', '--w-bg'], ['c-panel', 't-panel', '--w-panel'], ['c-ink', 't-ink', '--w-ink'], ['c-accent', 't-accent', '--w-accent']]) {
+  $(c).addEventListener('input', () => { $(t).value = $(c).value; setVar(v, $(c).value); });
+  $(t).addEventListener('input', () => { setVar(v, $(t).value); });
+}
+$('rad').addEventListener('input', () => { $('rad-v').textContent = $('rad').value + 'px'; setVar('--w-radius', $('rad').value + 'px'); });
+
+// the "break it" demo — remove a wired control and watch the gate reject the redesign
+$('break').addEventListener('change', () => {
+  const dec = $('dg-dec');
+  if ($('break').checked && dec) dec.remove();
+  else if (!$('break').checked && !$('dg-dec')) {
+    const b = document.createElement('button'); b.id = 'dg-dec'; b.textContent = '− decline';
+    b.addEventListener('click', () => { n = Math.max(0, n - 1); paint(); runGate(); });
+    $('dg-inc').parentElement.insertBefore(b, $('dg-inc'));
+  }
+  runGate();
+});
+
+// introspect the LIVE document to build the skin the gate judges
+function currentSkin() {
+  const cs = getComputedStyle(root);
+  const controls = CONTRACT.controls.filter((id) => $(id));                 // ids actually present
+  const vars = CONTRACT.vars.filter((v) => cs.getPropertyValue(v).trim() !== '');  // vars actually defined
+  return { controls, vars, varsUsed: CONTRACT.vars.slice(), kernelHash: fingerprint(BUILD_KERNEL).hash };
+}
+function runGate() {
+  const r = designGate(CONTRACT, currentSkin());
+  $('verdict').className = 'verdict v-' + r.verdict;
+  $('verdict').textContent = r.ship ? '✓ SHIP — the redesign is safe' : '✗ REJECT — the redesign breaks the build';
+  const laws = [['KERNEL', r.report.kernelIntact], ['CONTROLS', r.report.controlsWired], ['REQUIRED VARS', r.report.requiredVars], ['NO UNDEFINED VARS', r.report.noUndefinedVars]];
+  $('laws').innerHTML = laws.map(([n, ok]) => '<div class="law ' + (ok ? 'ok' : 'no') + '"><span class="dot"></span>' + (ok ? '✓ ' : '✗ ') + n + '</div>').join('');
+  $('breaks').innerHTML = r.breaks.map((b) => '<li><b>' + b.law + '</b> — ' + b.why + '</li>').join('');
+}
+paint(); runGate();
+</script>
+</body>
+</html>
